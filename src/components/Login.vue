@@ -1,20 +1,28 @@
 <template>
   <div class="login">
-    <div class="title"><span>Member Login</span></div>
-    <div class="form-container">
-      <div class="form-control">
-        <txtBox :iconClass="'fa-user'" :showIcon="true"  @input="(val)=>username = val" :placeholder="'Username'" />
+    <div class="conditional" v-if="!loggedin">
+      <div class="title"><span>Member Login</span></div>
+      <div class="form-container">
+        <div class="form-control">
+          <txtBox :iconClass="'fa-user'" :showIcon="true"  @input="(val)=>username = val" :placeholder="'Username'" />
+          <span class="error" v-if="errors.username">{{errors.username}}</span>
+        </div>
+        <div class="form-control">
+          <txtBox :iconClass="'fa-lock'" :showIcon="true" @input="(val)=>password = val" type="password" :placeholder="'Password'" />
+          <span class="error" v-if="errors.password">{{errors.password}}</span>
+        </div>
+        <div class="form-control links">
+          <chkBox :label="'Remember Me'" @change="handleChange" />
+          <span class="wrap" @click="handleClick"><i>Forgot Password?</i></span>
+        </div>
+        <div class="form-control last">
+          <button @click="handleLogin">Login</button>
+        </div>
       </div>
-      <div class="form-control">
-        <txtBox :iconClass="'fa-lock'" :showIcon="true" @input="(val)=>password = val" type="password" :placeholder="'Password'" />
-      </div>
-      <div class="form-control links">
-        <chkBox :label="'Remember Me'" @change="handleChange" />
-        <span class="wrap" @click="handleClick"><i>Forgot Password?</i></span>
-      </div>
-      <div class="form-control last">
-        <button @click="handleLogin">Login</button>
-      </div>
+    </div>
+    <div class="henlo-world" v-else>
+      <h2>Hi {{username}}</h2>
+      <img src="https://i.imgur.com/1D8yxOo.gif" alt="party!">
     </div>
   </div>
 </template>
@@ -32,7 +40,12 @@ export default {
     return {
       username: '',
       password: '',
-      rememberMe: false
+      loggedin: false,
+      rememberMe: false,
+      errors: {
+        username: '',
+        password: ''
+      }
     }
   },
   created () {
@@ -40,15 +53,24 @@ export default {
   },
   methods: {
     handleLogin () {
-      if (this.username && this.password) {
-        const isValid = this.username.match(/^[a-z]+@[a-z]+?\.[a-z]{3}$/)
-        if (isValid) {
-          this.login()
-        } else {
-          alert('Wrong email')
-        }
+      if (!this.username) {
+        this.errors.username = 'Enter username'
+        return
       } else {
-        alert('Enter data')
+        this.errors.username = ''
+      }
+      if (!this.password) {
+        this.errors.password = 'Enter password'
+        return
+      } else {
+        this.errors.password = ''
+      }
+
+      const isValid = this.username.match(/^[a-z]+@[a-z]+?\.[a-z]{3}$/)
+      if (isValid) {
+        this.login()
+      } else {
+        this.errors.username = 'Valid format is name@example.com'
       }
     },
     async login () {
@@ -57,7 +79,10 @@ export default {
           username: this.username,
           password: this.password
         })
-        alert(`Login done. Token is ${data.authToken}`)
+        if (data.authToken) {
+          this.loggedin = true
+          // alert(`Login done. Token is ${data.authToken}`)
+        }
       } catch (error) {
         const msg = error.response ? error.response.data.message : error.message
         console.error('Error in login', msg)
@@ -134,5 +159,12 @@ i{
   color: rgba(0,0,0,0.4);
   float: right;
   cursor: pointer;
+}
+.error{
+  color: red;
+  float: left;
+  font-size: 12px;
+  padding-top: 3px;
+  padding-left: 10px;
 }
 </style>
