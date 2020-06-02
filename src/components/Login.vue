@@ -41,7 +41,7 @@ export default {
   methods: {
     handleLogin () {
       if (this.username && this.password) {
-        const isValid = this.username.match(/[a-z]+@[a-z]*.[a-z]{3}/)
+        const isValid = this.username.match(/^[a-z]+@[a-z]+?\.[a-z]{3}$/)
         if (isValid) {
           this.login()
         } else {
@@ -57,7 +57,7 @@ export default {
           username: this.username,
           password: this.password
         })
-        console.log(data.authToken)
+        alert(`Login done. Token is ${data.authToken}`)
       } catch (error) {
         const msg = error.response ? error.response.data.message : error.message
         console.error('Error in login', msg)
